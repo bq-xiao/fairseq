@@ -8,7 +8,6 @@ from torch.utils.data import DataLoader
 from transformers import BertTokenizer
 
 from fairseq import tasks
-from fairseq.criterions.label_smoothed_cross_entropy import label_smoothed_nll_loss
 
 tokenizer = BertTokenizer.from_pretrained("hfl/chinese-bert-wwm", cache_dir="download_model/chinese-bert-wwm")
 
@@ -80,8 +79,11 @@ for epoch in range(10):
     preds, labels = [], []
     for batch_data in test_dataloader:
         x = batch_data['input_ids'].to(device)
+        tgt = batch_data['labels'].to(device)
+        src_lengths = batch_data['src_lengths'].to(device)
         with torch.no_grad():
-            y, _ = model(src_tokens=x)
+            y, _ = model(src_tokens=x, src_lengths =src_lengths, prev_output_tokens=tgt)
+            y = y.argmax(-1)
         label_tokens = batch_data["labels"].cpu().numpy()
         y = y.cpu().numpy()
         decoded_preds = tokenizer.batch_decode(y, skip_special_tokens=True)
