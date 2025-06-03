@@ -24,7 +24,7 @@ from fairseq.data import (
     TruncateDataset,
     data_utils,
     encoders,
-    indexed_dataset,
+    indexed_dataset, Dictionary,
 )
 from fairseq.data.indexed_dataset import get_available_dataset_impl
 from fairseq.dataclass import ChoiceEnum, FairseqDataclass
@@ -306,15 +306,24 @@ class TranslationTask(FairseqTask):
             )
 
         # load dictionaries
-        src_dict = cls.load_dictionary(
-            os.path.join(paths[0], "dict.{}.txt".format(cfg.source_lang))
-        )
-        tgt_dict = cls.load_dictionary(
-            os.path.join(paths[0], "dict.{}.txt".format(cfg.target_lang))
-        )
-        assert src_dict.pad() == tgt_dict.pad()
-        assert src_dict.eos() == tgt_dict.eos()
-        assert src_dict.unk() == tgt_dict.unk()
+        lines = []
+        with open(os.path.join(paths[0], "vocab.txt"), 'r', encoding='utf-8') as f:
+            rows = f.readlines()
+        for row in rows:
+            lines.append(row.rstrip())
+        src_dict = Dictionary(add_special_symbols=False)
+        src_dict.symbols = lines
+        # src_dict = cls.load_dictionary(
+        #     os.path.join(paths[0], "vocab.txt")
+        # )
+        # tgt_dict = cls.load_dictionary(
+        #     os.path.join(paths[0], "vocab.txt")
+        # )
+        tgt_dict = Dictionary(add_special_symbols=False)
+        tgt_dict.symbols = lines
+        #assert src_dict.pad() == tgt_dict.pad()
+        #assert src_dict.eos() == tgt_dict.eos()
+        #assert src_dict.unk() == tgt_dict.unk()
         logger.info("[{}] dictionary: {} types".format(cfg.source_lang, len(src_dict)))
         logger.info("[{}] dictionary: {} types".format(cfg.target_lang, len(tgt_dict)))
 

@@ -200,19 +200,19 @@ class Dictionary:
 
     def bos(self):
         """Helper to get index of beginning-of-sentence symbol"""
-        return self.bos_index
+        return self.symbols.index('[CLS]')
 
     def pad(self):
         """Helper to get index of pad symbol"""
-        return self.pad_index
+        return self.symbols.index('[PAD]')
 
     def eos(self):
         """Helper to get index of end-of-sentence symbol"""
-        return self.eos_index
+        return self.symbols.index('[SEP]')
 
     def unk(self):
         """Helper to get index of unk symbol"""
-        return self.unk_index
+        return self.symbols.index('[UNK]')
 
     @classmethod
     def load(cls, f, add_special_symbols=True):
